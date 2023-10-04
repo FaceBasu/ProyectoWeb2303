@@ -12,11 +12,13 @@ namespace WebApplication1.Models
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
-    public partial class BD_MARYSTYLISEntities : DbContext
+    public partial class BD_MARYSTYLISEntities1 : DbContext
     {
-        public BD_MARYSTYLISEntities()
-            : base("name=BD_MARYSTYLISEntities")
+        public BD_MARYSTYLISEntities1()
+            : base("name=BD_MARYSTYLISEntities1")
         {
         }
     
@@ -32,6 +34,7 @@ namespace WebApplication1.Models
         public virtual DbSet<Empleados> Empleados { get; set; }
         public virtual DbSet<Facturas> Facturas { get; set; }
         public virtual DbSet<GananciaDiaria> GananciaDiaria { get; set; }
+        public virtual DbSet<ImagenesEmpleados> ImagenesEmpleados { get; set; }
         public virtual DbSet<ImagenesProductos> ImagenesProductos { get; set; }
         public virtual DbSet<ImagenesServicios> ImagenesServicios { get; set; }
         public virtual DbSet<Planilla> Planilla { get; set; }
@@ -42,5 +45,42 @@ namespace WebApplication1.Models
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<Servicios> Servicios { get; set; }
         public virtual DbSet<Usuarios> Usuarios { get; set; }
+    
+        public virtual int RegistroUsuario(string nombre_Usuario, string contrasena, string nombre, string apellido, string correo, string telefono, Nullable<int> puntos, Nullable<int> id_Rol)
+        {
+            var nombre_UsuarioParameter = nombre_Usuario != null ?
+                new ObjectParameter("nombre_Usuario", nombre_Usuario) :
+                new ObjectParameter("nombre_Usuario", typeof(string));
+    
+            var contrasenaParameter = contrasena != null ?
+                new ObjectParameter("contrasena", contrasena) :
+                new ObjectParameter("contrasena", typeof(string));
+    
+            var nombreParameter = nombre != null ?
+                new ObjectParameter("Nombre", nombre) :
+                new ObjectParameter("Nombre", typeof(string));
+    
+            var apellidoParameter = apellido != null ?
+                new ObjectParameter("Apellido", apellido) :
+                new ObjectParameter("Apellido", typeof(string));
+    
+            var correoParameter = correo != null ?
+                new ObjectParameter("Correo", correo) :
+                new ObjectParameter("Correo", typeof(string));
+    
+            var telefonoParameter = telefono != null ?
+                new ObjectParameter("Telefono", telefono) :
+                new ObjectParameter("Telefono", typeof(string));
+    
+            var puntosParameter = puntos.HasValue ?
+                new ObjectParameter("Puntos", puntos) :
+                new ObjectParameter("Puntos", typeof(int));
+    
+            var id_RolParameter = id_Rol.HasValue ?
+                new ObjectParameter("Id_Rol", id_Rol) :
+                new ObjectParameter("Id_Rol", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("RegistroUsuario", nombre_UsuarioParameter, contrasenaParameter, nombreParameter, apellidoParameter, correoParameter, telefonoParameter, puntosParameter, id_RolParameter);
+        }
     }
 }

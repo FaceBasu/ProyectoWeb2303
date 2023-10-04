@@ -18,6 +18,7 @@ namespace WebApplication1.Models
         public Empleados()
         {
             this.Citas = new HashSet<Citas>();
+            this.ImagenesEmpleados = new HashSet<ImagenesEmpleados>();
             this.Planilla = new HashSet<Planilla>();
         }
     
@@ -25,11 +26,12 @@ namespace WebApplication1.Models
         public string Nombre_Empleado { get; set; }
         public string Apellido_Empleado { get; set; }
         public string Descripcion_Empleado { get; set; }
-        public byte[] Foto_Empleado { get; set; }
         public string Correo_Empleado { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Citas> Citas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ImagenesEmpleados> ImagenesEmpleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Planilla> Planilla { get; set; }
     }

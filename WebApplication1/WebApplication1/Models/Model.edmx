@@ -49,7 +49,6 @@
           <Property Name="Nombre_Empleado" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="Apellido_Empleado" Type="nchar" MaxLength="20" Nullable="false" />
           <Property Name="Descripcion_Empleado" Type="nvarchar(max)" Nullable="false" />
-          <Property Name="Foto_Empleado" Type="image" Nullable="false" />
           <Property Name="Correo_Empleado" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Facturas">
@@ -70,6 +69,15 @@
           <Property Name="Ingresos" Type="decimal" Precision="18" Scale="0" Nullable="false" />
           <Property Name="Fecha" Type="date" Nullable="false" />
           <Property Name="Egresos" Type="decimal" Precision="18" Scale="0" />
+        </EntityType>
+        <EntityType Name="ImagenesEmpleados">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Id_Empleado" Type="int" Nullable="false" />
+          <Property Name="FileName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="ImageData" Type="varbinary(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="ImagenesProductos">
           <Key>
@@ -164,12 +172,12 @@
           </Key>
           <Property Name="Id_Usuario" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Nombre_Usuario" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="Contrasena" Type="varbinary(max)" Nullable="false" />
+          <Property Name="Contrasena" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Nombre" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="Apellido" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="Correo" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Telefono" Type="nvarchar" MaxLength="15" Nullable="false" />
-          <Property Name="Puntos" Type="int" Nullable="false" />
+          <Property Name="Puntos" Type="int" />
           <Property Name="Id_Rol" Type="int" Nullable="false" />
         </EntityType>
         <Association Name="FK_Citas_Empleados">
@@ -292,6 +300,20 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ImagenesEmpleados_Empleados_Id_Empleado">
+          <End Role="Empleados" Type="Self.Empleados" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ImagenesEmpleados" Type="Self.ImagenesEmpleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Empleados">
+              <PropertyRef Name="Id_Empleado" />
+            </Principal>
+            <Dependent Role="ImagenesEmpleados">
+              <PropertyRef Name="Id_Empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ImagenesProductos_Productos">
           <End Role="Productos" Type="Self.Productos" Multiplicity="1" />
           <End Role="ImagenesProductos" Type="Self.ImagenesProductos" Multiplicity="*" />
@@ -376,6 +398,16 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="RegistroUsuario" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="nombre_Usuario" Type="nvarchar" Mode="In" />
+          <Parameter Name="contrasena" Type="nvarchar(max)" Mode="In" />
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+          <Parameter Name="Apellido" Type="nvarchar" Mode="In" />
+          <Parameter Name="Correo" Type="nvarchar" Mode="In" />
+          <Parameter Name="Telefono" Type="nvarchar" Mode="In" />
+          <Parameter Name="Puntos" Type="int" Mode="In" />
+          <Parameter Name="Id_Rol" Type="int" Mode="In" />
+        </Function>
         <EntityContainer Name="BD_MARYSTYLISModelStoreContainer">
           <EntitySet Name="Citas" EntityType="Self.Citas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Detalle_Ganancias_Facturas" EntityType="Self.Detalle_Ganancias_Facturas" Schema="dbo" store:Type="Tables" />
@@ -384,6 +416,7 @@
           <EntitySet Name="Empleados" EntityType="Self.Empleados" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Facturas" EntityType="Self.Facturas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GananciaDiaria" EntityType="Self.GananciaDiaria" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ImagenesEmpleados" EntityType="Self.ImagenesEmpleados" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ImagenesProductos" EntityType="Self.ImagenesProductos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ImagenesServicios" EntityType="Self.ImagenesServicios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Planilla" EntityType="Self.Planilla" Schema="dbo" store:Type="Tables" />
@@ -433,6 +466,10 @@
           <AssociationSet Name="FK_Facturas_Citas" Association="Self.FK_Facturas_Citas">
             <End Role="Citas" EntitySet="Citas" />
             <End Role="Facturas" EntitySet="Facturas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ImagenesEmpleados_Empleados_Id_Empleado" Association="Self.FK_ImagenesEmpleados_Empleados_Id_Empleado">
+            <End Role="Empleados" EntitySet="Empleados" />
+            <End Role="ImagenesEmpleados" EntitySet="ImagenesEmpleados" />
           </AssociationSet>
           <AssociationSet Name="FK_ImagenesProductos_Productos" Association="Self.FK_ImagenesProductos_Productos">
             <End Role="Productos" EntitySet="Productos" />
@@ -522,9 +559,9 @@
           <Property Name="Nombre_Empleado" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Apellido_Empleado" Type="String" MaxLength="20" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="Descripcion_Empleado" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Foto_Empleado" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
           <Property Name="Correo_Empleado" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Citas" Relationship="Self.FK_Citas_Empleados" FromRole="Empleados" ToRole="Citas" />
+          <NavigationProperty Name="ImagenesEmpleados" Relationship="Self.FK_ImagenesEmpleados_Empleados_Id_Empleado" FromRole="Empleados" ToRole="ImagenesEmpleados" />
           <NavigationProperty Name="Planilla" Relationship="Self.FK_Planilla_Empleados" FromRole="Empleados" ToRole="Planilla" />
         </EntityType>
         <EntityType Name="Facturas">
@@ -550,6 +587,16 @@
           <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="Egresos" Type="Decimal" Precision="18" Scale="0" />
           <NavigationProperty Name="Detalle_Ganancias_Facturas" Relationship="Self.FK_Detalle_Ganancias_Facturas_GananciaDiaria" FromRole="GananciaDiaria" ToRole="Detalle_Ganancias_Facturas" />
+        </EntityType>
+        <EntityType Name="ImagenesEmpleados">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Id_Empleado" Type="Int32" Nullable="false" />
+          <Property Name="FileName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ImageData" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
+          <NavigationProperty Name="Empleados" Relationship="Self.FK_ImagenesEmpleados_Empleados_Id_Empleado" FromRole="ImagenesEmpleados" ToRole="Empleados" />
         </EntityType>
         <EntityType Name="ImagenesProductos">
           <Key>
@@ -658,12 +705,12 @@
           </Key>
           <Property Name="Id_Usuario" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Nombre_Usuario" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Contrasena" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
+          <Property Name="Contrasena" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Nombre" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Apellido" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Correo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Telefono" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Puntos" Type="Int32" Nullable="false" />
+          <Property Name="Puntos" Type="Int32" />
           <Property Name="Id_Rol" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Citas" Relationship="Self.FK_Citas_Usuarios" FromRole="Usuarios" ToRole="Citas" />
           <NavigationProperty Name="Reseñas" Relationship="Self.FK_Reseñas_Usuarios" FromRole="Usuarios" ToRole="Reseñas" />
@@ -789,6 +836,20 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ImagenesEmpleados_Empleados_Id_Empleado">
+          <End Role="Empleados" Type="Self.Empleados" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ImagenesEmpleados" Type="Self.ImagenesEmpleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Empleados">
+              <PropertyRef Name="Id_Empleado" />
+            </Principal>
+            <Dependent Role="ImagenesEmpleados">
+              <PropertyRef Name="Id_Empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Planilla_Empleados">
           <End Role="Empleados" Type="Self.Empleados" Multiplicity="1" />
           <End Role="Planilla" Type="Self.Planilla" Multiplicity="*" />
@@ -873,7 +934,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="BD_MARYSTYLISEntities" annotation:LazyLoadingEnabled="true">
+        <EntityContainer Name="BD_MARYSTYLISEntities1" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Citas" EntityType="Self.Citas" />
           <EntitySet Name="Detalle_Ganancias_Facturas" EntityType="Self.Detalle_Ganancias_Facturas" />
           <EntitySet Name="DetalleFacturaProducto" EntityType="Self.DetalleFacturaProducto" />
@@ -881,6 +942,7 @@
           <EntitySet Name="Empleados" EntityType="Self.Empleados" />
           <EntitySet Name="Facturas" EntityType="Self.Facturas" />
           <EntitySet Name="GananciaDiaria" EntityType="Self.GananciaDiaria" />
+          <EntitySet Name="ImagenesEmpleados" EntityType="Self.ImagenesEmpleados" />
           <EntitySet Name="ImagenesProductos" EntityType="Self.ImagenesProductos" />
           <EntitySet Name="ImagenesServicios" EntityType="Self.ImagenesServicios" />
           <EntitySet Name="Planilla" EntityType="Self.Planilla" />
@@ -931,6 +993,10 @@
             <End Role="Servicios" EntitySet="Servicios" />
             <End Role="DetalleFacturaServicios" EntitySet="DetalleFacturaServicios" />
           </AssociationSet>
+          <AssociationSet Name="FK_ImagenesEmpleados_Empleados_Id_Empleado" Association="Self.FK_ImagenesEmpleados_Empleados_Id_Empleado">
+            <End Role="Empleados" EntitySet="Empleados" />
+            <End Role="ImagenesEmpleados" EntitySet="ImagenesEmpleados" />
+          </AssociationSet>
           <AssociationSet Name="FK_Planilla_Empleados" Association="Self.FK_Planilla_Empleados">
             <End Role="Empleados" EntitySet="Empleados" />
             <End Role="Planilla" EntitySet="Planilla" />
@@ -959,13 +1025,23 @@
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Usuarios" EntitySet="Usuarios" />
           </AssociationSet>
+          <FunctionImport Name="RegistroUsuario">
+            <Parameter Name="nombre_Usuario" Mode="In" Type="String" />
+            <Parameter Name="contrasena" Mode="In" Type="String" />
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+            <Parameter Name="Apellido" Mode="In" Type="String" />
+            <Parameter Name="Correo" Mode="In" Type="String" />
+            <Parameter Name="Telefono" Mode="In" Type="String" />
+            <Parameter Name="Puntos" Mode="In" Type="Int32" />
+            <Parameter Name="Id_Rol" Mode="In" Type="Int32" />
+          </FunctionImport>
         </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="BD_MARYSTYLISModelStoreContainer" CdmEntityContainer="BD_MARYSTYLISEntities">
+        <EntityContainerMapping StorageEntityContainer="BD_MARYSTYLISModelStoreContainer" CdmEntityContainer="BD_MARYSTYLISEntities1">
           <EntitySetMapping Name="Citas">
             <EntityTypeMapping TypeName="BD_MARYSTYLISModel.Citas">
               <MappingFragment StoreEntitySet="Citas">
@@ -1013,7 +1089,6 @@
                 <ScalarProperty Name="Nombre_Empleado" ColumnName="Nombre_Empleado" />
                 <ScalarProperty Name="Apellido_Empleado" ColumnName="Apellido_Empleado" />
                 <ScalarProperty Name="Descripcion_Empleado" ColumnName="Descripcion_Empleado" />
-                <ScalarProperty Name="Foto_Empleado" ColumnName="Foto_Empleado" />
                 <ScalarProperty Name="Correo_Empleado" ColumnName="Correo_Empleado" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -1036,6 +1111,16 @@
                 <ScalarProperty Name="Ingresos" ColumnName="Ingresos" />
                 <ScalarProperty Name="Fecha" ColumnName="Fecha" />
                 <ScalarProperty Name="Egresos" ColumnName="Egresos" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ImagenesEmpleados">
+            <EntityTypeMapping TypeName="BD_MARYSTYLISModel.ImagenesEmpleados">
+              <MappingFragment StoreEntitySet="ImagenesEmpleados">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Id_Empleado" ColumnName="Id_Empleado" />
+                <ScalarProperty Name="FileName" ColumnName="FileName" />
+                <ScalarProperty Name="ImageData" ColumnName="ImageData" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1150,6 +1235,7 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="RegistroUsuario" FunctionName="BD_MARYSTYLISModel.Store.RegistroUsuario" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

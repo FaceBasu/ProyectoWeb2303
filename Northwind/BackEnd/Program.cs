@@ -13,12 +13,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+#region Dependency Injection
 builder.Services.AddDbContext<NorthWindContext>();
 builder.Services.AddScoped<ICategoryDAL, CategoryDALImpl>();
+builder.Services.AddScoped<IShipperDAL, ShipperDALImpl>();
 builder.Services.AddScoped<IUnidadDeTrabajo, UnidadDeTrabajo>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IShipperService, ShipperService>();
 
+#endregion
 
 
 
